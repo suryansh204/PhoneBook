@@ -8,7 +8,10 @@
     "dev": "node --watch index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": { "express": "^5.1.0"},
+  "dependencies": {
+    "express": "^5.1.0",
+    "morgan": "^1.10.1"
+  },
   "author": "Matti Luukkainen",
   "license": "MIT"
 }
