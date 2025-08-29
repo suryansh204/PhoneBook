@@ -2,6 +2,8 @@ const express = require('express')
 const app = express()
 var morgan = require('morgan')
 
+app.use(express.static('dist'))
+
 morgan.token('json-content', (req, res) => {
     return req.body ? JSON.stringify(req.body) : "-";
 })
