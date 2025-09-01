@@ -67,6 +67,7 @@ app.post('/api/persons', (request,response) => {
     })
   }
 
+
     const namee = {
         id:  Math.floor(Math.random() * 1000000),
         name: person.name,
@@ -77,6 +78,16 @@ app.post('/api/persons', (request,response) => {
 
     names = names.concat(namee)
     response.json(namee)
+})
+
+app.delete('/api/persons/:i', (request, response) => {
+  const i = Number(request.params.i)
+
+  if(!names.find(n => n.id === i)){
+    return response.status(404).json({error: 'person not found'})
+  }
+
+  names = names.filter(n=>n.id !== i)
 })
 
 
