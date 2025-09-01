@@ -10,6 +10,10 @@ morgan.token('json-content', (req, res) => {
     return req.body ? JSON.stringify(req.body) : "-";
 })
 
+names = [
+  {id: 1, name:"ar", number:"123"}
+]
+
 app.use(morgan(function (tokens, req, res) {
   return [
     tokens.method(req, res),
