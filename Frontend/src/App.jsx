@@ -1,60 +1,11 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 import phonebookService from './services/phonebook'
 
-const Persons = (props) => {
-  return (
-    <ul>
-      {props.filterPerson.map((person) => {
-        console.log(person); 
+import Personx from './components/Personx'
+import PersonForm from './components/PersonForm'
+import Filter from './components/Filter'
+import Notification from './components/Notification'
 
- 
-        return (
-          <div key={person.id}>
-          <li >
-            {person.name}: {person.number + "   "}
-              <button onClick={() => props.ondelete(person.id)}>delete</button>
-          </li>
-           </div>
-        );
-      })}
-    </ul>
-  );
-};
-
-const PersonForm = (props) => {
-
-  return (
-    <form onSubmit={props.addname}> 
-      <div>Name: <input value={props.newName} onChange={props.handleNameChange} /></div>
-      <div>Number: <input value={props.newNumber} onChange={props.handleNumberChange} /></div>
-        <button type="submit">Submit</button>
-         
-    </form>
-  )
-}
-
-
-const Filter = (props) => {
-
-  return(
-   <input value={props.value} onChange={props.onChange} />
-  )
-
-}
-
-const Notification = (props) => {
-  if(props.message === null){
-    return null
-
-  }
-
-  return(
-    <div className='error'>
-      {props.message}
-    </div>
-  )
-}
 
 const App = () => {
 
@@ -63,24 +14,6 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [filteredName, setFilteredName] = useState('')
   const [error, setError] = useState('...')
-
-  const handleDelete = (id) => {
-  phonebookService
-    .del(id)
-    .then(() => {
-      setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
-    })
-    .catch(error => {
-      console.error("Delete failed:", error);
-      alert('error occured, already deleted')
-      
-    });
-    setError(`successfully deleted contact`);
-        setTimeout(() => {
-          setError(null)
-        }, 3000)
-     
-};
 
   const hook = () => {
   console.log('effect')
@@ -97,6 +30,43 @@ const App = () => {
   const handleFilterChange = (event) => {setFilteredName(event.target.value)}
   const handleNameChange = (event) => {setNewName(event.target.value)}
   const handleNumberChange = (event) => {setNewNumber(event.target.value)}
+
+
+
+const handleDelete = (id) => {
+  console.log("starting del");
+  
+  // Update UI immediately (optimistic update)
+  setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
+  
+  phonebookService
+    .del(id)
+    // .then(() => {
+    //   console.log("then worked - server confirmed deletion");
+    //   setError(`successfully deleted contact`);
+    // })
+    .then(() => {
+      try {
+        console.log("✅ Entered .then() block");
+        
+        setPersons(prevPersons => prevPersons.filter(person => person.id !== id));
+        
+        console.log("✅ State updated successfully");
+        console.log("then worked");
+      } catch (error) {
+        console.error("❌ ERROR in .then() block:", error);
+      }
+    })
+    .catch(error => {
+      console.error("Delete failed:", error);
+      setError(`Contact was already deleted`);
+      // UI already updated above, so no need to do it again
+    });
+    
+  setTimeout(() => {
+    setError(null);
+  }, 3000);
+};
 
   
   const AddName = (event) => {
@@ -172,7 +142,7 @@ else{
         </div>
     
       <h2>Numbers</h2>
-      <Persons filterPerson={filer} ondelete={handleDelete}/>
+      <Personx filterPerson={filer} onDelete={handleDelete}/>
     </div>
   )
 }
