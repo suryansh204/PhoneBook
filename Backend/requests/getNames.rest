@@ -1,3 +1,4 @@
-#GET https://phonebook-pbrm.onrender.com/api/persons
+GET http://localhost:3001/api/persons
 
-DELETE https://phonebook-pbrm.onrender.com/api/persons/6411
+
+DELETE http://localhost:3001/api/persons/1

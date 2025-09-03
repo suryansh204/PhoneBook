@@ -11,7 +11,7 @@ morgan.token('json-content', (req, res) => {
 })
 
 names = [
-  {id: 1, name:"ar", number:"123"}
+  {id: 1, name:"ar", number:"123"}, {id: 2, name:"ar1", number:"1233"}, {id: 3, name:"a1r", number:"12e3"}
 ]
 
 app.use(morgan(function (tokens, req, res) {
@@ -87,7 +87,8 @@ app.delete('/api/persons/:i', (request, response) => {
     return response.status(404).json({error: 'person not found'})
   }
 
-  names = names.filter(n=>n.id !== i)
+  names = names.filter(n=>n.id !== i);
+  return response.status(204).end(); 
 })
 
 
