@@ -15,7 +15,6 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 
 const App = () => {
-  // --- your logic (unchanged) ---
   const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
@@ -57,7 +56,7 @@ const App = () => {
     const numberClean = newNumber.trim()
     if (!nameClean || !numberClean) return
 
-    const existing = persons.find(p => p.name.toLowerCase() === nameClean.toLowerCase())
+    const existing = persons.find(p => p.name === nameClean)
 
     if (existing) {
       const ok = window.confirm(`${existing.name} is already added to phonebook. Replace the old number with a new one?`)
@@ -90,7 +89,7 @@ const App = () => {
   const filer = persons.filter(str =>
     str.name.toLowerCase().includes(filteredName.toLowerCase())
   )
-  // --- end your logic ---
+
 
 return (
     <Box

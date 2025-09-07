@@ -1,7 +1,9 @@
+require('dotenv').config()
+
+const Contact = require('./contact.js')
 const express = require('express')
 const app = express()
 var morgan = require('morgan')
-
 
 app.use(express.json())
 app.use(express.static('dist'))
@@ -10,9 +12,7 @@ morgan.token('json-content', (req, res) => {
     return req.body ? JSON.stringify(req.body) : "-";
 })
 
-names = [
-  {id: 1, name:"ar", number:"123"}, {id: 2, name:"ar1", number:"1233"}, {id: 3, name:"a1r", number:"12e3"}
-]
+
 
 app.use(morgan(function (tokens, req, res) {
   return [
@@ -29,71 +29,117 @@ app.use(morgan(function (tokens, req, res) {
 
 
 app.get('/api/persons', (request, response) => {
-  response.json(names)
+
+  Contact.find({}).then(names => {
+    response.json(names)
+  }) .catch(error => {
+      console.log(error)
+      response.status(500).end()
+    })
+  
 })
 
-app.get('/', (request, response) => {
-  response.send('<h1>Hello World!</h1>')
-})
 
 app.get('/info', (request, response) => {
 
-    const num =  names.length;
+    const num =  Contact.collection.countDocuments();
     const date = new Date(); 
     response.send(`<h3>Phone Book has ${num} entries</h3>
     <p>${date}</p>`)
 
 })
 
-app.get('/api/persons/:i', (request, response) => {
+app.get('/api/persons/:id', (request, response, next) => {
 
-    const i = Number(request.params.i)
-    const name = names.find(n => Number(n.id) === i)
-
-    if(name){
-
-    response.json(name)}else{
-        response.status(404).json({ error: 'Person not found' })
-    }
-
+    Contact.findById(request.params.id).then(contact => {
+      if (contact) {
+        response.json(contact)
+      } else {
+        response.status(404).end()
+      }
+    })
+     .catch(error => next(error))
 })
+
 
 app.post('/api/persons', (request,response) => {
-    const person = request.body
+    const {name, number} = request.body
 
-      if (!person.name || !person.number) {
-    return response.status(400).json({ 
-      error: 'name or number missing' 
+
+
+
+     const newContact = new Contact({
+      name: name,
+      number: number,
+  });
+
+    newContact.save().then(savedContact => {response.json(savedContact);
+    }) .catch(error => {
+      console.log(error)
+      response.status(500).end()
     })
-  }
+})
+    
 
 
-    const namee = {
-        id:  Math.floor(Math.random() * 1000000),
-        name: person.name,
-        number: person.number,
+app.delete('/api/persons/:i', (request, response, next) => {
 
 
+  Contact.findByIdAndDelete(request.params.i)
+  .then(result => {
+    if(result){
+       response.status(204).end()
     }
+      else{
+      response.status(404).end()
+    }
+      
+      }
 
-    names = names.concat(namee)
-    response.json(namee)
+) .catch(error => {
+      console.log(error)
+      response.status(500).end()
+    })
+
+
 })
 
-app.delete('/api/persons/:i', (request, response) => {
-  const i = Number(request.params.i)
+app.put('/api/persons/:id', (request, response, next) => {
+  const {name, number} = request.body
 
-  if(!names.find(n => n.id === i)){
-    return response.status(404).json({error: 'person not found'})
+  const updatedContact = {
+    name: name,
+    number: number
   }
+  Contact.findById(request.params.id ).then(result => {
+    if(!result){
+      response.status(404).end()
+    }
+    result.name = name
+    result.number = number
 
-  names = names.filter(n=>n.id !== i);
-  return response.status(204).end(); 
+    return result.save().then((updatedContact) => {
+      response.json(updatedContact)
+    })
+
+  }).catch(error => next(error))
 })
 
 
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
 
-const PORT = process.env.PORT || 3001
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
+
+// this has to be the last loaded middleware, also all the routes should be registered before this!
+app.use(errorHandler)
+
+const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 
