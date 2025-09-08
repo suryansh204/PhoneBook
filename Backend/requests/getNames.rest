@@ -1,7 +1,7 @@
 //GET http://localhost:3001/api/persons
 
 
-//DELETE http://localhost:3001/api/persons/68bcc393c7992bfb81845c3a
+DELETE http://localhost:3001/api/persons/68b9f93b0a8d8155c99fecd1
 
-PUT http://localhost:3001/api/persons/68bcc55e85a05124bb6c613e
+//PUT http://localhost:3001/api/persons/68bcc55e85a05124bb6c613e
 

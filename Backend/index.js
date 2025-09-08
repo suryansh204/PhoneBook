@@ -1,5 +1,3 @@
-// require('dotenv').config()
-
 const Contact = require('./contact.js')
 const express = require('express')
 const app = express()
@@ -8,11 +6,9 @@ var morgan = require('morgan')
 app.use(express.json())
 app.use(express.static('dist'))
 
-morgan.token('json-content', (req, res) => {
-    return req.body ? JSON.stringify(req.body) : "-";
+morgan.token('json-content', (req) => {
+  return req.body ? JSON.stringify(req.body) : '-'
 })
-
-
 
 app.use(morgan(function (tokens, req, res) {
   return [
@@ -33,70 +29,56 @@ app.get('/api/persons', (request, response) => {
   Contact.find({}).then(names => {
     response.json(names)
   }) .catch(error => {
-      console.log(error)
-      response.status(500).end()
-    })
-  
-})
-
+    console.log(error)
+    response.status(500).end()
+  })})
 
 app.get('/info', (request, response) => {
-
-    const num =  Contact.collection.countDocuments();
-    const date = new Date(); 
-    response.send(`<h3>Phone Book has ${num} entries</h3>
-    <p>${date}</p>`)
-
-})
+  const num =  Contact.collection.countDocuments()
+  const date = new Date()
+  response.send(`<h3>Phone Book has ${num} entries</h3>
+    <p>${date}</p>`)})
 
 app.get('/api/persons/:id', (request, response, next) => {
-
-    Contact.findById(request.params.id).then(contact => {
-      if (contact) {
-        response.json(contact)
-      } else {
-        response.status(404).end()
-      }
-    })
-     .catch(error => next(error))
+  Contact.findById(request.params.id).then(contact => {
+    if (contact) {
+      response.json(contact)
+    }else {
+      response.status(404).end()
+    }
+  })
+    .catch(error => next(error))
 })
 
 
 app.post('/api/persons', (request,response) => {
-    const {name, number} = request.body
+  const { name, number } = request.body
+  const newContact = new Contact({
+    name: name,
+    number: number,
+  })
 
-
-
-
-     const newContact = new Contact({
-      name: name,
-      number: number,
-  });
-
-    newContact.save().then(savedContact => {response.json(savedContact);
-    }) .catch(error => {
-      console.log(error)
-      response.status(500).end()
-    })
+  newContact.save().then(savedContact => {response.json(savedContact)
+  }) .catch(error => {
+    console.log(error)
+    response.status(500).end()
+  })
 })
-    
 
 
-app.delete('/api/persons/:i', (request, response, next) => {
+app.delete('/api/persons/:i', (request, response) => {
 
 
   Contact.findByIdAndDelete(request.params.i)
-  .then(result => {
-    if(result){
-       response.status(204).end()
-    }
-      else{
-      response.status(404).end()
-    }
-      
+    .then(result => {
+      if(result){
+        response.status(204).end()
       }
-
-) .catch(error => {
+      else{
+        response.status(404).end()
+      }
+    }
+   ) .catch(error => {
       console.log(error)
       response.status(500).end()
     })
@@ -105,12 +87,8 @@ app.delete('/api/persons/:i', (request, response, next) => {
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const {name, number} = request.body
+  const { name, number } = request.body
 
-  const updatedContact = {
-    name: name,
-    number: number
-  }
   Contact.findById(request.params.id ).then(result => {
     if(!result){
       response.status(404).end()
@@ -128,14 +106,12 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
-
   if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
+  return response.status(400).send({ error: 'malformatted id' })
   } 
 
   next(error)
 }
-
 // this has to be the last loaded middleware, also all the routes should be registered before this!
 app.use(errorHandler)
 
