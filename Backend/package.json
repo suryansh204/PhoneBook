@@ -8,7 +8,8 @@
     "dev": "node --watch index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:ui": "rm -rf dist && cd ../Frontend && npm run build && cp -r dist ../Backend",
-    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push"
+    "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && git push",
+    "lint": "eslint ."
   },
   "dependencies": {
     "express": "^5.1.0",
@@ -16,5 +17,11 @@
     "morgan": "^1.10.1"
   },
   "author": "Matti Luukkainen",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.35.0",
+    "@stylistic/eslint-plugin-js": "^4.4.1",
+    "eslint": "^9.35.0",
+    "globals": "^16.3.0"
+  }
 }
